@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kua Marriage Archive - Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .controls label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .controls select,
+        .controls input,
+        .controls button {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .controls select,
+        .controls input {
+            background: white;
+            color: #333;
+        }
+
+        .controls button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .chart-container h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        .stat-card h4 {
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .data-table {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        .data-table h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        table th,
+        table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table tbody tr:hover {
+            background: #f5f5f5;
+            transition: background 0.3s ease;
+        }
+
+        table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .filter-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls select,
+            .controls input,
+            .controls button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Kua Marriage Archive</h1>
+            <p>Visual Data Analysis & Insights Dashboard</p>
+        </header>
+
+        <div class="controls">
+            <label for="yearFilter">Filter by Year:</label>
+            <input type="number" id="yearFilter" min="1900" max="2026" value="2026" placeholder="Enter year">
+            
+            <label for="regionFilter">Filter by Region:</label>
+            <select id="regionFilter">
+                <option value="all">All Regions</option>
+                <option value="North">North</option>
+                <option value="South">South</option>
+                <option value="East">East</option>
+                <option value="West">West</option>
+                <option value="Central">Central</option>
+            </select>
+
+            <button onclick="applyFilters()">Apply Filters</button>
+            <button onclick="resetFilters()">Reset All</button>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <h4>Total Records</h4>
+                <div class="value" id="totalRecords">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>Average Age at Marriage</h4>
+                <div class="value" id="avgAge">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>Total Males</h4>
+                <div class="value" id="totalMales">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>Total Females</h4>
+                <div class="value" id="totalFemales">0</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3>📈 Marriages Over Time</h3>
+                <div class="chart-wrapper">
+                    <canvas id="timeSeriesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>🗺️ Marriages by Region</h3>
+                <div class="chart-wrapper">
+                    <canvas id="regionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>👥 Gender Distribution</h3>
+                <div class="chart-wrapper">
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>🎂 Age Distribution at Marriage</h3>
+                <div class="chart-wrapper">
+                    <canvas id="ageChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container full-width">
+                <h3>💍 Monthly Marriages Trend</h3>
+                <div class="chart-wrapper">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <h3>📋 Marriage Records</h3>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Region</th>
+                        <th>Groom Age</th>
+                        <th>Bride Age</th>
+                        <th>Witness Count</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 Kua Marriage Archive | Data Visualization Dashboard</p>
+        </footer>
+    </div>
+
+    <script>
+        // Sample marriage archive data
+        const allData = [
+            { date: '2024-01-15', region: 'North', groomAge: 28, brideAge: 26, witnesses: 45, status: 'Recorded' },
+            { date: '2024-02-20', region: 'South', groomAge: 32, brideAge: 29, witnesses: 52, status: 'Recorded' },
+            { date: '2024-03-10', region: 'East', groomAge: 25, brideAge: 23, witnesses: 38, status: 'Recorded' },
+            { date: '2024-04-05', region: 'West', groomAge: 30, brideAge: 28, witnesses: 41, status: 'Recorded' },
+            { date: '2024-05-12', region: 'Central', groomAge: 26, brideAge: 24, witnesses: 35, status: 'Recorded' },
+            { date: '2024-06-18', region: 'North', groomAge: 29, brideAge: 27, witnesses: 48, status: 'Recorded' },
+            { date: '2024-07-22', region: 'South', groomAge: 31, brideAge: 30, witnesses: 55, status: 'Recorded' },
+            { date: '2024-08-30', region: 'East', groomAge: 27, brideAge: 25, witnesses: 42, status: 'Recorded' },
+            { date: '2024-09-14', region: 'West', groomAge: 33, brideAge: 31, witnesses: 50, status: 'Recorded' },
+            { date: '2024-10-25', region: 'Central', groomAge: 28, brideAge: 26, witnesses: 39, status: 'Recorded' },
+            { date: '2024-11-08', region: 'North', groomAge: 30, brideAge: 28, witnesses: 46, status: 'Recorded' },
+            { date: '2024-12-20', region: 'South', groomAge: 26, brideAge: 24, witnesses: 44, status: 'Recorded' },
+            { date: '2025-01-10', region: 'East', groomAge: 29, brideAge: 27, witnesses: 40, status: 'Recorded' },
+            { date: '2025-02-14', region: 'West', groomAge: 31, brideAge: 29, witnesses: 53, status: 'Recorded' },
+            { date: '2025-03-22', region: 'Central', groomAge: 27, brideAge: 25, witnesses: 36, status: 'Recorded' },
+            { date: '2025-04-18', region: 'North', groomAge: 28, brideAge: 26, witnesses: 43, status: 'Recorded' },
+            { date: '2025-05-30', region: 'South', groomAge: 32, brideAge: 30, witnesses: 51, status: 'Recorded' },
+            { date: '2025-06-12', region: 'East', groomAge: 26, brideAge: 24, witnesses: 37, status: 'Recorded' },
+            { date: '2025-07-25', region: 'West', groomAge: 29, brideAge: 27, witnesses: 47, status: 'Recorded' },
+            { date: '2025-08-09', region: 'Central', groomAge: 30, brideAge: 28, witnesses: 45, status: 'Recorded' },
+        ];
+
+        let filteredData = [...allData];
+        let charts = {};
+
+        // Initialize charts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+        });
+
+        function applyFilters() {
+            const year = document.getElementById('yearFilter').value;
+            const region = document.getElementById('regionFilter').value;
+
+            filteredData = allData.filter(record => {
+                const recordYear = new Date(record.date).getFullYear().toString();
+                const matchYear = !year || recordYear === year;
+                const matchRegion = region === 'all' || record.region === region;
+                return matchYear && matchRegion;
+            });
+
+            updateDashboard();
+        }
+
+        function resetFilters() {
+            document.getElementById('yearFilter').value = '2026';
+            document.getElementById('regionFilter').value = 'all';
+            filteredData = [...allData];
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            updateStats();
+            updateCharts();
+            updateTable();
+        }
+
+        function updateStats() {
+            const totalRecords = filteredData.length;
+            const totalMales = filteredData.length;
+            const totalFemales = filteredData.length;
+            const avgAge = filteredData.length > 0 
+                ? Math.round((filteredData.reduce((sum, d) => sum + d.groomAge + d.brideAge, 0) / (filteredData.length * 2)) * 10) / 10
+                : 0;
+
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('avgAge').textContent = avgAge;
+            document.getElementById('totalMales').textContent = totalMales;
+            document.getElementById('totalFemales').textContent = totalFemales;
+        }
+
+        function updateCharts() {
+            // Time Series Chart
+            updateTimeSeriesChart();
+            
+            // Region Distribution Chart
+            updateRegionChart();
+            
+            // Gender Distribution Chart
+            updateGenderChart();
+            
+            // Age Distribution Chart
+            updateAgeChart();
+            
+            // Monthly Trend Chart
+            updateMonthlyTrendChart();
+        }
+
+        function updateTimeSeriesChart() {
+            const ctx = document.getElementById('timeSeriesChart').getContext('2d');
+            
+            const yearData = {};
+            filteredData.forEach(record => {
+                const year = new Date(record.date).getFullYear();
+                yearData[year] = (yearData[year] || 0) + 1;
+            });
+
+            const years = Object.keys(yearData).sort();
+            const counts = years.map(year => yearData[year]);
+
+            if (charts.timeSeries) charts.timeSeries.destroy();
+            charts.timeSeries = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Marriages per Year',
+                        data: counts,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 12 },
+                                padding: 15
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRegionChart() {
+            const ctx = document.getElementById('regionChart').getContext('2d');
+            
+            const regionData = {};
+            filteredData.forEach(record => {
+                regionData[record.region] = (regionData[record.region] || 0) + 1;
+            });
+
+            const regions = Object.keys(regionData);
+            const counts = regions.map(region => regionData[region]);
+
+            if (charts.region) charts.region.destroy();
+            charts.region = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: regions,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: [
+                            '#667eea',
+                            '#764ba2',
+                            '#f093fb',
+                            '#4facfe',
+                            '#43e97b'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 12 },
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateGenderChart() {
+            const ctx = document.getElementById('genderChart').getContext('2d');
+            
+            if (charts.gender) charts.gender.destroy();
+            charts.gender = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Males (Grooms)', 'Females (Brides)'],
+                    datasets: [{
+                        label: 'Count',
+                        data: [filteredData.length, filteredData.length],
+                        backgroundColor: [
+                            '#667eea',
+                            '#f093fb'
+                        ],
+                        borderColor: [
+                            '#667eea',
+                            '#f093fb'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateAgeChart() {
+            const ctx = document.getElementById('ageChart').getContext('2d');
+            
+            const ageBuckets = {
+                '20-25': 0,
+                '26-30': 0,
+                '31-35': 0,
+                '36-40': 0,
+                '41+'': 0
+            };
+
+            filteredData.forEach(record => {
+                const avgAge = Math.floor((record.groomAge + record.brideAge) / 2);
+                if (avgAge <= 25) ageBuckets['20-25']++;
+                else if (avgAge <= 30) ageBuckets['26-30']++;
+                else if (avgAge <= 35) ageBuckets['31-35']++;
+                else if (avgAge <= 40) ageBuckets['36-40']++;
+                else ageBuckets['41+']++;
+            });
+
+            if (charts.age) charts.age.destroy();
+            charts.age = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ageBuckets),
+                    datasets: [{
+                        label: 'Marriage Count',
+                        data: Object.values(ageBuckets),
+                        backgroundColor: '#764ba2',
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateMonthlyTrendChart() {
+            const ctx = document.getElementById('monthlyTrendChart').getContext('2d');
+            
+            const monthData = {};
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            filteredData.forEach(record => {
+                const date = new Date(record.date);
+                const monthKey = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+                monthData[monthKey] = (monthData[monthKey] || 0) + 1;
+            });
+
+            const months = Object.keys(monthData);
+            const counts = months.map(month => monthData[month]);
+
+            if (charts.monthly) charts.monthly.destroy();
+            charts.monthly = new Chart(ctx, {
+                type: 'area',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Marriages per Month',
+                        data: counts,
+                        borderColor: '#43e97b',
+                        backgroundColor: 'rgba(67, 233, 123, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#43e97b',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 12 },
+                                padding: 15
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTable() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            filteredData.slice(0, 20).forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(record.date).toLocaleDateString()}</td>
+                    <td>${record.region}</td>
+                    <td>${record.groomAge}</td>
+                    <td>${record.brideAge}</td>
+                    <td>${record.witnesses}</td>
+                    <td><span class="filter-badge">${record.status}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredData.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="6" style="text-align: center; color: #999;">No records found</td>';
+                tableBody.appendChild(row);
+            }
+        }
+    </script>
+</body>
+</html>
