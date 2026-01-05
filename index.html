@@ -1,862 +1,269 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sistem Arsip Pernikahan Tahunan KUA Ambulu</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <!-- SheetJS XLSX parser -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Chart.js untuk grafik -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUA Marriage Archive</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+        * {
             margin: 0;
-            background:  #f6f9fb;
-        }
-        header {
-            background: #194b7e;
-            color: #fff;
-            padding: 24px 10px 14px 10px;
-        }
-        header h1 {
-            font-size: 2.1em;
-            margin:  0 0 6px 0;
-        }
-        header h2 {
-            font-weight: normal;
-            font-size: 1.15em;
-            margin: 0 0 0 2px;
-        }
-        . container {
-            display: flex;
-            gap: 20px;
-            margin:  2vw;
-        }
-        .panel {
-            background: #fff;
-            border-radius:  7px;
-            box-shadow: 0 1px 10px #0001;
-            padding: 24px 18px 18px 18px;
-            min-width: 320px;
-        }
-        . panel h3 {
-            margin-top: 0;
-            color: #194b7e;
-        }
-        .panel input[type="file"] {
-            margin-bottom: 8px;
-        }
-        .panel label {
-            display: block;
-            margin-top: 18px;
-            font-weight:  bold;
-            color: #194b7e;
-        }
-        .filter-group {
-            margin:  10px 0 12px 0;
-        }
-        .filter-group label {
-            font-weight: normal;
-            color: #25385f;
-        }
-        select, input[type="text"], input[type="number"] {
-            width: 95%;
-            font-size: 1em;
-            padding: 0. 4em;
-            margin-top: 4px;
-            border-radius: 4px;
-            border: 1px solid #bfcfe6;
+            padding: 0;
             box-sizing: border-box;
-            margin-bottom: 7px;
         }
-        button {
-            margin:  8px 0;
-            padding:  8px 16px;
-            background: #194b7e;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.07em;
-            cursor: pointer;
-            margin-right: 6px;
-            box-shadow: 0 1px 3px #0002;
-        }
-        button: hover {
-            background: #245fa3;
-        }
-        button:active {
-            background: #133a5f;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 0.97em;
-            margin:  0;
-        }
-        th, td {
-            border: 1px solid #bdd3f3;
-            text-align: center;
-            padding: 7px 5px;
-        }
-        th {
-            background: #e8effb;
-            cursor: pointer;
-            position: sticky;
-            top: 0;
-            z-index:  2;
-        }
-        tbody tr:nth-child(even) td {
-            background: #f4f8fd;
-        }
-        . muted {
-            color: #8899b9;
-        }
-        .loader {
-            border: 3px solid #bed6fc;
-            border-top: 3px solid #3461a0;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            animation: spin 0.85s linear infinite;
-            margin: 18px auto 25px auto;
-            display: none;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .drag-active {
-            border:  1. 5px solid #3461a0;
-            background: #e9f0ff;
-        }
-        @media (max-width: 900px) {
-            .container { flex-direction: column; }
-        }
-        . filter-title {
-            font-weight: bold;
-            color: #183561;
-            margin-top: 18px;
-        }
-        .help {
-            font-size: 0.9em;
-            color: #366ab3;
-            margin-bottom: 5px;
-            background: #e8eefb;
-            border-radius: 4px;
-            padding: 5px 7px;
-        }
-        .badge {
-            display: inline-block;
-            background: #194b7e11;
-            color: #245fa3;
-            font-size: 0.96em;
-            padding: 2px 8px;
-            border-radius:  11px;
-            margin-left: 7px;
-            margin-top: 2px;
-        }
-        .tabs {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
-            gap: 5px;
-            margin-bottom:  15px;
-            border-bottom: 2px solid #e0e8f5;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
-        .tab-btn {
-            padding: 10px 16px;
-            background: #f0f4f9;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px 5px 0 0;
-            font-weight: bold;
-            color: #25385f;
-            margin-bottom: -2px;
-            border-bottom:  3px solid transparent;
-        }
-        .tab-btn. active {
-            background: #fff;
-            color: #194b7e;
-            border-bottom-color: #194b7e;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .chart-container {
-            position: relative;
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
             width: 100%;
-            height:  350px;
-            margin-bottom: 25px;
         }
-        . chart-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
-        . chart-small {
-            position: relative;
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        textarea,
+        select {
             width: 100%;
-            height: 280px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
         }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom:  20px;
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
         }
-        .stat-card {
-            background: #f0f4f9;
-            border: 1px solid #bdd3f3;
-            border-radius: 6px;
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 12px;
+            background-color: #667eea;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .file-upload-label:hover {
+            background-color: #5568d3;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #5568d3;
+        }
+
+        button:active {
+            background-color: #4755b8;
+        }
+
+        .success-message {
+            display: none;
+            margin-top: 20px;
             padding: 15px;
-            text-align:  center;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            border-radius: 5px;
+            text-align: center;
         }
-        .stat-card-value {
-            font-size: 1.8em;
-            font-weight:  bold;
-            color: #194b7e;
+
+        .error-message {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            border-radius: 5px;
+            text-align: center;
         }
-        .stat-card-label {
-            font-size: 0.85em;
-            color: #25385f;
-            margin-top: 5px;
-        }
-        @media (max-width: 1200px) {
-            .chart-row {
-                grid-template-columns: 1fr;
-            }
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        . right-panel {
-            flex:  1;
-            min-width: 450px;
-        }
-        .left-panel {
-            flex-shrink: 0;
-            min-width: 320px;
-            width: 330px;
-            max-width: 95vw;
+
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Sistem Arsip Tahunan Pernikahan<br>KUA Ambulu</h1>
-        <h2>Upload, Gabung, Filter & Ekspor Laporan Data Pernikahan SIMKAH4 – <i>Offline</i>, Formal, Siap Cetak</h2>
-    </header>
     <div class="container">
-        <!-- PANEL:  UPLOAD & FILTER (Kiri) -->
-        <div class="panel left-panel">
-            <h3>1. Upload File Excel SIMKAH4 (<span class="badge">. xls/. xlsx</span>)</h3>
-            <div class="help">Format kolom wajib sama persis dengan hasil download <b>SIMKAH4</b>.  File laporan bulanan dapat diupload bersamaan (multi-upload/gabung otomatis).</div>
-            <input type="file" id="file-input" accept=".xls,.xlsx" multiple>
-            <div id="drop-zone" class="help" style="cursor: pointer;">Atau drag & drop file Excel di sini</div>
-            <div id="upload-info" class="muted"></div>
-            <div class="loader" id="loader"></div>
+        <h1>KUA Marriage Archive</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" name="fullName" required>
+            </div>
 
-            <div><hr></div>
-            <h3>2. Filter & Pilah Data</h3>
-            <div class="filter-title">Rekap 1: Wilayah/Kategori Nikah & Rujuk</div>
-            <div class="filter-group">
-                <label>Pilih Desa/Kelurahan (<span id="desa-count-group">Semua</span>)</label>
-                <select id="desa-filter" multiple size="4" style="min-width: 95%;max-width:99%;">
+            <div class="form-group">
+                <label for="birthDate">Birth Date</label>
+                <input type="date" id="birthDate" name="birthDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="maritalStatus">Marital Status</label>
+                <select id="maritalStatus" name="maritalStatus" required>
+                    <option value="">Select Status</option>
+                    <option value="single">Single</option>
+                    <option value="married">Married</option>
+                    <option value="divorced">Divorced</option>
+                    <option value="widowed">Widowed</option>
                 </select>
             </div>
-            <div class="filter-title">Rekap 2: Umur dan Pendidikan Pengantin</div>
-            <div class="filter-group">
-                <label>Filter Usia Pengantin dari tahun lahir (kosongkan untuk semua)</label>
-                <div>
-                    Laki:  <input type="number" id="usia-lk-min" placeholder="Min" style="width:40px;"> - <input type="number" id="usia-lk-max" placeholder="Max" style="width:40px; margin-right:8px;">
-                    Wanita: <input type="number" id="usia-pr-min" placeholder="Min" style="width:40px;"> - <input type="number" id="usia-pr-max" placeholder="Max" style="width:40px;">
-                </div>
-            </div>
-            <button onclick="updateTable()">Terapkan Filter</button>
-            <button onclick="resetFilter()" style="background:#bbb;color:#123;">Reset Filter</button>
-            <div style="margin-top:15px;">
-                <button onclick="exportTable('xls')">Export . xls</button>
-                <button onclick="exportTable('xlsx')">Export .xlsx</button>
-            </div>
-        </div>
-        <!-- PANEL: TABEL & GRAFIK (Kanan) -->
-        <div class="panel right-panel">
-            <div id="rekap-title" style="font-weight:bold;font-size:1.2em;margin-bottom:2px;color:#34588d;">Silakan upload file Excel laporan bulanan dulu. </div>
-            
-            <!-- Tabs untuk switch antara Table, Charts, dll -->
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('tables')">📊 Tabel</button>
-                <button class="tab-btn" onclick="switchTab('charts')">📈 Grafik</button>
+
+            <div class="form-group">
+                <label for="spouseName">Spouse Name (if applicable)</label>
+                <input type="text" id="spouseName" name="spouseName">
             </div>
 
-            <!-- Tab:  Tabel -->
-            <div id="tables" class="tab-content active" style="overflow: auto;max-height:83vh;">
-                <div id="rekap-table-wrap"></div>
+            <div class="form-group">
+                <label for="marriageDate">Marriage Date (if applicable)</label>
+                <input type="date" id="marriageDate" name="marriageDate">
             </div>
 
-            <!-- Tab: Grafik/Charts -->
-            <div id="charts" class="tab-content" style="overflow:auto;max-height:83vh;padding-right:10px;">
-                <!-- Statistik Ringkas -->
-                <div class="stats-grid" id="stats-container"></div>
-
-                <!-- Chart 1: Nikah per Desa (Bar) -->
-                <div class="chart-container">
-                    <h4>📊 Jumlah Nikah per Desa/Kelurahan</h4>
-                    <canvas id="chart-nikah-desa"></canvas>
-                </div>
-
-                <!-- Chart 2: Kantor vs Luar Kantor (Pie) -->
-                <div class="chart-row">
-                    <div class="chart-small">
-                        <h4>🏢 Kantor vs Luar Kantor</h4>
-                        <canvas id="chart-kantor-luar"></canvas>
-                    </div>
-                    <div class="chart-small">
-                        <h4>🌍 Nikah Campuran (WNA)</h4>
-                        <canvas id="chart-campuran"></canvas>
-                    </div>
-                </div>
-
-                <!-- Chart 3: Usia Pengantin (Bar Grouped) -->
-                <div class="chart-container">
-                    <h4>👥 Distribusi Usia Pengantin (Laki-Laki vs Wanita)</h4>
-                    <canvas id="chart-usia"></canvas>
-                </div>
-
-                <!-- Chart 4: Pendidikan Pengantin (Horizontal Bar) -->
-                <div class="chart-container">
-                    <h4>🎓 Tingkat Pendidikan Pengantin (Laki-Laki vs Wanita)</h4>
-                    <canvas id="chart-pendidikan"></canvas>
-                </div>
-
-                <!-- Chart 5: Rujuk & Isbat (Donut) -->
-                <div class="chart-row">
-                    <div class="chart-small">
-                        <h4>🔁 Jumlah Rujuk per Desa</h4>
-                        <canvas id="chart-rujuk"></canvas>
-                    </div>
-                    <div class="chart-small">
-                        <h4>⚖️ Jumlah Isbat per Desa</h4>
-                        <canvas id="chart-isbat"></canvas>
-                    </div>
-                </div>
-
-                <!-- Chart 6: Tren Bulanan (jika ada data tanggal) -->
-                <div class="chart-container">
-                    <h4>📅 Tren Nikah Bulanan</h4>
-                    <canvas id="chart-tren-bulanan"></canvas>
+            <div class="form-group">
+                <label for="documentFile">Upload Document</label>
+                <div class="file-upload">
+                    <input type="file" id="documentFile" name="documentFile" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <label for="documentFile" class="file-upload-label">Choose File</label>
+                    <div class="file-name" id="fileName">No file chosen</div>
                 </div>
             </div>
-        </div>
+
+            <div class="form-group">
+                <label for="notes">Additional Notes</label>
+                <textarea id="notes" name="notes" placeholder="Enter any additional information..."></textarea>
+            </div>
+
+            <button type="submit">Submit</button>
+
+            <div class="success-message" id="successMessage">
+                Your submission has been received. Thank you!
+            </div>
+            <div class="error-message" id="errorMessage">
+                An error occurred. Please try again.
+            </div>
+        </form>
     </div>
 
     <script>
-    // SheetJS XLSX parser (imported from cdn)
-    let semuaData = [];
-    let chartInstances = {}; // Menyimpan instance chart untuk di-destroy nanti
+        // File upload name display
+        const fileInput = document.getElementById('documentFile');
+        const fileName = document.getElementById('fileName');
 
-    const COL = {
-        desa: 'Nama Kelurahan',
-        nikahDi: 'Nikah Di',
-        wnLk: 'Warganegara Suami',
-        wnPr: 'Warganegara Istri',
-        pendidikanLk: 'Pendidikan Suami',
-        pendidikanPr: 'Pendidikan Istri',
-        umurLk: 'Umur Suami',
-        umurPr: 'Umur Istri',
-        tanggalAkad: 'Tanggal Akad',
-        statusSuami: 'Status Suami',
-        statusIstri:  'Status Istri',
-    };
-
-    const usiaBins = {
-        lk: [{label:'≤19',min:0,max:19}, {label:'20-21',min:20,max:21}, {label:'22+',min:22,max:999}],
-        pr: [{label:'≤19',min:0,max:19}, {label:'20-21',min:20,max:21}, {label:'22+',min:22,max: 999}],
-    };
-
-    const pendidikanList = ['SD', 'SLTP', 'SLTA', 'D1-D2', 'D3', 'S1', 'S2', 'S3'];
-
-    let filterState = {
-        desa: [],
-        usiaLk: [null,null],
-        usiaPr: [null,null],
-    };
-
-    // Chart.js default colors
-    const chartColors = {
-        primary: '#194b7e',
-        success: '#27ae60',
-        warning: '#f39c12',
-        danger: '#e74c3c',
-        info: '#3498db',
-        secondary: '#95a5a6',
-        palette: ['#194b7e', '#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c', '#34495e']
-    };
-
-    // ===== FILE UPLOAD & DRAG =====
-    const input = document.getElementById('file-input');
-    const dropZone = document.getElementById('drop-zone');
-    dropZone.addEventListener('dragover', e => {e.preventDefault(); dropZone.classList.add('drag-active');});
-    dropZone.addEventListener('dragleave', e => {e.preventDefault(); dropZone.classList.remove('drag-active');});
-    dropZone.addEventListener('drop', e => {
-        e.preventDefault();
-        dropZone.classList.remove('drag-active');
-        input.files = e.dataTransfer.files;
-        handleFiles([...input.files]);
-    });
-    input.addEventListener('change', function(){ handleFiles([...input.files]); });
-
-    function handleFiles(files){
-        if(! files.length) return;
-        semuaData = [];
-        document.getElementById('loader').style.display = 'block';
-        let allPromises = [];
-        let allRows = [];
-        files.forEach(file=>{
-            allPromises.push(new Promise((resolve, reject)=>{
-                let reader = new FileReader();
-                reader.onload = function(evt){
-                    try{
-                        let data = new Uint8Array(evt.target.result);
-                        let workbook = XLSX.read(data, {type:'array'});
-                        let sheet = workbook. Sheets[workbook.SheetNames[0]];
-                        let rows = XLSX.utils.sheet_to_json(sheet, {defval: ""});
-                        resolve({nama: file.name,rows});
-                    } catch(e){ reject(e);}
-                };
-                reader. readAsArrayBuffer(file);
-            }));
-        });
-        Promise.all(allPromises).then(fileResults=>{
-            fileResults.forEach(result=>{
-                allRows = allRows.concat(result.rows);
-            });
-            semuaData = allRows;
-            displayUploadInfo(fileResults);
-            refreshFilterOptions();
-            updateTable();
-        })
-        .catch(e=>{
-            alert('Gagal membaca file Excel.\nPastikan format file sesuai dan tidak rusak.\n(' + e + ')');
-        })
-        .finally(()=>{document.getElementById('loader').style.display='none';});
-    }
-
-    function displayUploadInfo(fileResults){
-        let el = document.getElementById('upload-info');
-        el.innerHTML = "File dimuat:  "+fileResults.map(f=>`<b>${f.nama}</b> (${f.rows.length} baris)`).join(', ');
-    }
-
-    function refreshFilterOptions(){
-        let desaSet = {};
-        semuaData.forEach(r=>{
-            let d = r[COL.desa]. trim();
-            if(d) desaSet[d]=1;
-        });
-        let desaOpt = Object.keys(desaSet).sort();
-        let desaSel = document.getElementById('desa-filter');
-        desaSel.innerHTML='';
-        desaOpt.forEach(d=>{
-            let opt = document. createElement('option');
-            opt.value = d; opt.innerHTML = d;
-            desaSel.appendChild(opt);
-        });
-        filterState.desa = [];
-        document.getElementById('desa-count-group').innerText = desaOpt.length>1?  `Pilih (${desaOpt.length})`: 'Semua';
-    }
-
-    document.getElementById('desa-filter').addEventListener('change',function(){
-        filterState. desa = Array.from(this.selectedOptions).map(o=>o.value);
-    });
-
-    ['usia-lk-min','usia-lk-max']. forEach((id,i)=>{
-        document.getElementById(id).addEventListener('input',function(){
-            filterState. usiaLk[i]=this.value?  parseInt(this.value):null;
-        });
-    });
-    ['usia-pr-min','usia-pr-max']. forEach((id,i)=>{
-        document.getElementById(id).addEventListener('input',function(){
-            filterState.usiaPr[i]=this.value? parseInt(this.value):null;
-        });
-    });
-
-    function resetFilter(){
-        document.getElementById('desa-filter').selectedIndex = -1;
-        filterState.desa = [];
-        ['usia-lk-min','usia-lk-max','usia-pr-min','usia-pr-max'].forEach((id)=>document.getElementById(id).value = '');
-        filterState.usiaLk = [null,null]; filterState.usiaPr = [null,null];
-        updateTable();
-    }
-
-    function filterData(){
-        return semuaData.filter(row=>{
-            if(! row[COL.desa]) return false;
-            if(filterState.desa. length && filterState.desa.indexOf(row[COL.desa])===-1) return false;
-            let uLk = parseInt(row[COL.umurLk]||'0'); let uPr = parseInt(row[COL.umurPr]||'0');
-            if(filterState.usiaLk[0] !== null && uLk < filterState.usiaLk[0]) return false;
-            if(filterState.usiaLk[1] !== null && uLk > filterState. usiaLk[1]) return false;
-            if(filterState.usiaPr[0] !== null && uPr < filterState.usiaPr[0]) return false;
-            if(filterState.usiaPr[1] !== null && uPr > filterState.usiaPr[1]) return false;
-            return true;
-        });
-    }
-
-    // ===== TAB SWITCH =====
-    function switchTab(tabName){
-        document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
-        document.getElementById(tabName).classList.add('active');
-        event.target.classList.add('active');
-        // Trigger chart redraw saat tab charts dibuka
-        if(tabName==='charts') {
-            setTimeout(()=>{
-                Object.values(chartInstances).forEach(chart=>{
-                    if(chart) chart.resize();
-                });
-            }, 100);
-        }
-    }
-
-    // ===== UPDATE TABLE & CHARTS =====
-    function updateTable(){
-        let data = filterData();
-        let group = {};
-        data.forEach(row=>{
-            let d = row[COL.desa]||'Tidak diketahui';
-            if(! group[d]) group[d]=[];
-            group[d].push(row);
-        });
-
-        // BUILD TABLES
-        let html = '';
-        html += '<h4>Rekapitulasi Nikah, Rujuk, Isbat per Desa/Kelurahan</h4>';
-        html += '<div class="help">Filter wilayah dan umur pada panel kiri.  Untuk office:  <b>"Nikah Di"</b> Berisi "KUA/KANTOR"=Kantor, "LUAR KUA/BEDOL"=Luar Kantor. </div>';
-        html += `<table id="tabel-rekap1"><thead><tr>
-            <th>Desa/Kelurahan</th>
-            <th>Jumlah Nikah</th>
-            <th>Kantor</th><th>Luar Kantor</th>
-            <th>Nikah Campuran<br>Laki</th>
-            <th>Nikah Campuran<br>Wanita</th>
-            <th>Jumlah Rujuk</th>
-            <th>Jumlah Isbat</th>
-        </tr></thead><tbody>`;
-
-        let totalNikah=0, totalKantor=0, totalLuar=0, totalCmpLk=0, totalCmpPr=0, totalRujuk=0, totalIsbat=0;
-
-        Object.keys(group).forEach(desa=>{
-            const rows = group[desa];
-            let jumNikah = rows.length;
-            let kantor = 0, luarKantor = 0, campuranLk=0, campuranPr=0, jumRujuk=0, jumIsbat=0;
-            rows.forEach(r=>{
-                let nDi = (r[COL.nikahDi]||"").toUpperCase();
-                if(nDi. includes("KUA")||nDi.includes("KANTOR")) kantor++; 
-                else if(nDi.includes("LUAR")||nDi.includes("BEDOL")) luarKantor++;
-                if((r[COL. wnLk]||"").trim().toUpperCase()!=="WNI" && (r[COL. wnLk]||"").trim()) campuranLk++;
-                if((r[COL.wnPr]||"").trim().toUpperCase()!=="WNI" && (r[COL.wnPr]||"").trim()) campuranPr++;
-                if((r[COL.statusSuami]+r[COL.statusIstri]).toLowerCase().includes("rujuk")) jumRujuk++;
-                if((r[COL.statusSuami]+r[COL. statusIstri]).toLowerCase().includes("isbat")) jumIsbat++;
-            });
-            totalNikah+=jumNikah; totalKantor+=kantor; totalLuar+=luarKantor; totalCmpLk+=campuranLk; totalCmpPr+=campuranPr; totalRujuk+=jumRujuk; totalIsbat+=jumIsbat;
-            html += `<tr><td>${desa}</td><td>${jumNikah}</td><td>${kantor}</td><td>${luarKantor}</td><td>${campuranLk}</td><td>${campuranPr}</td><td>${jumRujuk}</td><td>${jumIsbat}</td></tr>`;
-        });
-        html += `<tr style="background:#e8effb;font-weight:bold;"><td>TOTAL</td><td>${totalNikah}</td><td>${totalKantor}</td><td>${totalLuar}</td><td>${totalCmpLk}</td><td>${totalCmpPr}</td><td>${totalRujuk}</td><td>${totalIsbat}</td></tr>`;
-        html += '</tbody></table>';
-
-        // Table 2: Usia & Pendidikan
-        html += '<h4 style="margin-top:28px;">Rekap Usia & Pendidikan Pengantin</h4>';
-        html += '<div class="help">Statistik pendidikan dan umur pengantin dari data gabungan laporan, sesuai filter wilayah & umur pada panel kiri. </div>';
-        html += `<table id="tabel-rekap2"><thead><tr>
-            <th rowspan="2">Desa/Kelurahan</th>
-            <th colspan="3">Umur Laki</th><th colspan="3">Umur Wanita</th>
-            <th colspan="8">Pendidikan Laki-Laki</th>
-            <th colspan="8">Pendidikan Wanita</th>
-        </tr>
-        <tr>${
-            usiaBins.lk.map(u=>`<th>${u. label}</th>`).join('')+
-            usiaBins.pr.map(u=>`<th>${u.label}</th>`).join('')+
-            pendidikanList.map(p=>`<th>${p}</th>`).join('')+
-            pendidikanList.map(p=>`<th>${p}</th>`).join('')
-        }</tr></thead><tbody>`;
-
-        Object.keys(group).forEach(desa=>{
-            let rows = group[desa];
-            let usiaSumLk = usiaBins.lk.map(_=>0);
-            let usiaSumPr = usiaBins.pr.map(_=>0);
-            let pendidikanLk = pendidikanList.map(_=>0);
-            let pendidikanPr = pendidikanList.map(_=>0);
-            rows.forEach(r=>{
-                let uLk = parseInt(r[COL.umurLk]||'0');
-                usiaBins.lk.forEach((bin,i)=>{
-                    if(uLk>=bin. min && uLk<=bin.max) usiaSumLk[i]++;
-                });
-                let uPr = parseInt(r[COL.umurPr]||'0');
-                usiaBins.pr.forEach((bin,i)=>{
-                    if(uPr>=bin. min && uPr<=bin. max) usiaSumPr[i]++;
-                });
-                let pLk = (r[COL.pendidikanLk]||"").toUpperCase();
-                pendidikanList.forEach((p,i)=>{
-                    if(pLk. includes(p. toUpperCase())) pendidikanLk[i]++;
-                });
-                let pPr = (r[COL.pendidikanPr]||"").toUpperCase();
-                pendidikanList.forEach((p,i)=>{
-                    if(pPr.includes(p.toUpperCase())) pendidikanPr[i]++;
-                });
-            });
-            html += `<tr>
-                <td>${desa}</td>
-                ${usiaSumLk.map(x=>`<td>${x}</td>`).join('')}
-                ${usiaSumPr.map(x=>`<td>${x}</td>`).join('')}
-                ${pendidikanLk.map(x=>`<td>${x}</td>`).join('')}
-                ${pendidikanPr. map(x=>`<td>${x}</td>`).join('')}
-            </tr>`;
-        });
-        html += '</tbody></table>';
-        document.getElementById('rekap-title').innerText = "Hasil Rekap Gabungan Laporan (Sesuai Filter)";
-        document.getElementById('rekap-table-wrap').innerHTML = html;
-
-        // UPDATE CHARTS
-        updateCharts(group, data, totalNikah, totalKantor, totalLuar, totalCmpLk, totalCmpPr, totalRujuk, totalIsbat);
-    }
-
-    function updateCharts(group, filteredData, totalNikah, totalKantor, totalLuar, totalCmpLk, totalCmpPr, totalRujuk, totalIsbat){
-        // Stats Card
-        let statsHtml = `
-            <div class="stat-card"><div class="stat-card-value">${totalNikah}</div><div class="stat-card-label">Total Nikah</div></div>
-            <div class="stat-card"><div class="stat-card-value">${totalKantor}</div><div class="stat-card-label">Kantor</div></div>
-            <div class="stat-card"><div class="stat-card-value">${totalLuar}</div><div class="stat-card-label">Luar Kantor</div></div>
-            <div class="stat-card"><div class="stat-card-value">${totalCmpLk+totalCmpPr}</div><div class="stat-card-label">Nikah Campuran</div></div>
-        `;
-        document.getElementById('stats-container').innerHTML = statsHtml;
-
-        // Chart 1: Nikah per Desa (Bar)
-        destroyChart('chart-nikah-desa');
-        let desaNames = Object.keys(group).sort();
-        let nikahCounts = desaNames.map(d=>group[d].length);
-        let ctx1 = document.getElementById('chart-nikah-desa').getContext('2d');
-        chartInstances['chart-nikah-desa'] = new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: desaNames,
-                datasets: [{
-                    label: 'Jumlah Nikah',
-                    data: nikahCounts,
-                    backgroundColor: chartColors. primary,
-                    borderColor: '#123a5f',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'x',
-                plugins: { legend: { display: true } }
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileName.textContent = this.files[0].name;
+            } else {
+                fileName.textContent = 'No file chosen';
             }
         });
 
-        // Chart 2: Kantor vs Luar (Pie)
-        destroyChart('chart-kantor-luar');
-        let kantor2 = 0, luar2 = 0;
-        filteredData.forEach(r=>{
-            let nDi = (r[COL.nikahDi]||"").toUpperCase();
-            if(nDi. includes("KUA")||nDi.includes("KANTOR")) kantor2++; 
-            else if(nDi.includes("LUAR")||nDi.includes("BEDOL")) luar2++;
-        });
-        let ctx2 = document.getElementById('chart-kantor-luar').getContext('2d');
-        chartInstances['chart-kantor-luar'] = new Chart(ctx2, {
-            type: 'pie',
-            data: {
-                labels:  ['Kantor', 'Luar Kantor'],
-                datasets: [{
-                    data:  [kantor2, luar2],
-                    backgroundColor: ['#3498db', '#e74c3c'],
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio:  false }
-        });
+        // Form submission
+        const form = document.getElementById('uploadForm');
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        // Chart 3: Nikah Campuran (Pie)
-        destroyChart('chart-campuran');
-        let campuran = 0, bukan = 0;
-        filteredData.forEach(r=>{
-            let wna = (r[COL. wnLk]+r[COL.wnPr]).toUpperCase();
-            if((r[COL. wnLk]||"").trim().toUpperCase()! =="WNI" || (r[COL.wnPr]||"").trim().toUpperCase()!=="WNI") campuran++;
-            else bukan++;
-        });
-        let ctx3 = document.getElementById('chart-campuran').getContext('2d');
-        chartInstances['chart-campuran'] = new Chart(ctx3, {
-            type: 'pie',
-            data: {
-                labels: ['Campuran', 'Sejenis (WNI)'],
-                datasets: [{
-                    data: [campuran, bukan],
-                    backgroundColor: ['#f39c12', '#2ecc71'],
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }]
-            },
-            options:  { responsive: true, maintainAspectRatio: false }
-        });
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
 
-        // Chart 4: Distribusi Usia (Bar Grouped)
-        destroyChart('chart-usia');
-        let usiaSumLkAll = usiaBins.lk.map(_=>0);
-        let usiaSumPrAll = usiaBins.pr. map(_=>0);
-        filteredData.forEach(r=>{
-            let uLk = parseInt(r[COL.umurLk]||'0');
-            usiaBins.lk.forEach((bin,i)=>{
-                if(uLk>=bin.min && uLk<=bin.max) usiaSumLkAll[i]++;
-            });
-            let uPr = parseInt(r[COL.umurPr]||'0');
-            usiaBins.pr.forEach((bin,i)=>{
-                if(uPr>=bin.min && uPr<=bin.max) usiaSumPrAll[i]++;
-            });
-        });
-        let ctx4 = document.getElementById('chart-usia').getContext('2d');
-        chartInstances['chart-usia'] = new Chart(ctx4, {
-            type: 'bar',
-            data: {
-                labels:  usiaBins.lk.map(u=>u.label),
-                datasets: [
-                    { label: 'Laki-Laki', data: usiaSumLkAll, backgroundColor:  '#3498db' },
-                    { label: 'Wanita', data: usiaSumPrAll, backgroundColor: '#e74c3c' }
-                ]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+            // Hide previous messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
 
-        // Chart 5: Pendidikan (Horizontal Bar)
-        destroyChart('chart-pendidikan');
-        let pendidikanLkAll = pendidikanList.map(_=>0);
-        let pendidikanPrAll = pendidikanList.map(_=>0);
-        filteredData. forEach(r=>{
-            let pLk = (r[COL.pendidikanLk]||"").toUpperCase();
-            pendidikanList.forEach((p,i)=>{
-                if(pLk. includes(p.toUpperCase())) pendidikanLkAll[i]++;
-            });
-            let pPr = (r[COL.pendidikanPr]||"").toUpperCase();
-            pendidikanList.forEach((p,i)=>{
-                if(pPr.includes(p.toUpperCase())) pendidikanPrAll[i]++;
-            });
-        });
-        let ctx5 = document.getElementById('chart-pendidikan').getContext('2d');
-        chartInstances['chart-pendidikan'] = new Chart(ctx5, {
-            type: 'bar',
-            data: {
-                labels: pendidikanList,
-                datasets: [
-                    { label: 'Laki-Laki', data: pendidikanLkAll, backgroundColor:  '#3498db' },
-                    { label: 'Wanita', data: pendidikanPrAll, backgroundColor: '#e74c3c' }
-                ]
-            },
-            options:  { 
-                indexAxis: 'y',
-                responsive: true, 
-                maintainAspectRatio: false 
+            // Collect form data
+            const formData = new FormData(form);
+
+            try {
+                // Send data to backend
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    form.reset();
+                    fileName.textContent = 'No file chosen';
+                } else {
+                    errorMessage.textContent = 'Submission failed. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Error submitting form: ' + error.message;
+                errorMessage.style.display = 'block';
             }
         });
-
-        // Chart 6: Rujuk per Desa
-        destroyChart('chart-rujuk');
-        let rujukPerDesa = desaNames.map(d=>{
-            let sum = 0;
-            group[d].forEach(r=>{
-                if((r[COL.statusSuami]+r[COL.statusIstri]).toLowerCase().includes("rujuk")) sum++;
-            });
-            return sum;
-        });
-        let ctx6 = document.getElementById('chart-rujuk').getContext('2d');
-        chartInstances['chart-rujuk'] = new Chart(ctx6, {
-            type: 'doughnut',
-            data: {
-                labels: desaNames,
-                datasets: [{
-                    data: rujukPerDesa,
-                    backgroundColor: chartColors.palette,
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio:  false }
-        });
-
-        // Chart 7: Isbat per Desa
-        destroyChart('chart-isbat');
-        let isbatPerDesa = desaNames.map(d=>{
-            let sum = 0;
-            group[d].forEach(r=>{
-                if((r[COL.statusSuami]+r[COL.statusIstri]).toLowerCase().includes("isbat")) sum++;
-            });
-            return sum;
-        });
-        let ctx7 = document. getElementById('chart-isbat').getContext('2d');
-        chartInstances['chart-isbat'] = new Chart(ctx7, {
-            type: 'doughnut',
-            data:  {
-                labels: desaNames,
-                datasets: [{
-                    data: isbatPerDesa,
-                    backgroundColor: chartColors.palette,
-                    borderColor: '#fff',
-                    borderWidth: 2
-                }]
-            },
-            options:  { responsive: true, maintainAspectRatio: false }
-        });
-
-        // Chart 8: Tren Bulanan
-        destroyChart('chart-tren-bulanan');
-        let bulanMap = {};
-        filteredData. forEach(r=>{
-            let tgl = r[COL.tanggalAkad]||'';
-            let bulan = tgl.substring(0,7); // YYYY-MM format
-            if(bulan) bulanMap[bulan] = (bulanMap[bulan]||0) + 1;
-        });
-        let bulanSorted = Object.keys(bulanMap).sort();
-        let trendData = bulanSorted. map(b=>bulanMap[b]);
-        let ctx8 = document.getElementById('chart-tren-bulanan').getContext('2d');
-        chartInstances['chart-tren-bulanan'] = new Chart(ctx8, {
-            type: 'line',
-            data: {
-                labels:  bulanSorted,
-                datasets: [{
-                    label: 'Jumlah Nikah',
-                    data: trendData,
-                    borderColor: chartColors.primary,
-                    backgroundColor: 'rgba(25, 75, 126, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio:  false }
-        });
-    }
-
-    function destroyChart(canvasId){
-        if(chartInstances[canvasId]){
-            chartInstances[canvasId].destroy();
-            delete chartInstances[canvasId];
-        }
-    }
-
-    // ==== EXPORT to EXCEL ====
-    function exportTable(type){
-        var wb = XLSX.utils.book_new();
-        const wrap = document.getElementById('rekap-table-wrap');
-        ['tabel-rekap1','tabel-rekap2']. forEach((tidx)=>{
-            let tbl = wrap.querySelector('#'+tidx);
-            if(!tbl) return;
-            let ws = XLSX.utils.table_to_sheet(tbl);
-            XLSX.utils.book_append_sheet(wb, ws, tidx==='tabel-rekap1'?'Rekap Nikah':'Rekap Umur & Pendidikan');
-        });
-        XLSX.writeFile(wb, "Rekap_ArsipPernikahan_KUA_Ambulu."+type);
-    }
     </script>
 </body>
 </html>
